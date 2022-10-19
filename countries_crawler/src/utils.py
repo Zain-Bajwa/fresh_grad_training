@@ -34,7 +34,8 @@ def parse_countries_urls(html):
     country_urls_spans = soup.select("span.flagicon")
 
     country_urls = [
-        BASE_URL + url_span.parent.a.get("href") for url_span in country_urls_spans
+        BASE_URL + url_span.parent.a.get("href")
+        for url_span in country_urls_spans
     ]
     return country_urls
 
@@ -51,7 +52,7 @@ def parser_country(html, url, status_code):
     soup = BeautifulSoup(html, "html.parser")
     country["name"] = soup.select_one("span.mw-page-title-main").text
     if country["name"] == "Antarctica":
-        return ''
+        return ""
     country_detail_td = soup.select_one("td.infobox-data")
     country["capital"] = country_detail_td.next_element.text
     country["url"] = url
@@ -63,30 +64,22 @@ def parser_country(html, url, status_code):
             break
     country["response_code"] = str(status_code)
 
-    try:
-        coordinates = country_detail_td.select_one(
-            "span.geo-dec"
-        ).text.split()
+    if country_detail_td.select_one("span.geo-dec")is not None:
+        coordinates = country_detail_td.select_one("span.geo-dec").text.split()
         coordinates = [round(float(i[:-2]), 4) for i in coordinates]
         country["lat_lang"] = coordinates
-    except AttributeError:
+    else:
         country["lat_lang"] = []
 
     flag_images_td = soup.select_one("td.infobox-image") or soup.select_one(
         "td.infobox-full-data maptable"
     )
-    if flag_images_td is not None:
-        flag_images_img = flag_images_td.select("img")
-
-        if len(flag_images_img) >= 2:
-            country["Images"] = [
-                "https:" + flag_images_img[0].get("src"),
-                "https:" + flag_images_img[1].get("src"),
-            ]
-        else:
-            country["Images"] = ["https:" + flag_images_img[0].get("src")]
-    else:
-        country["Images"] = []
+    flag_images_img = (
+        flag_images_td.select("img") if flag_images_td is not None else []
+    )
+    country["Images"] = [
+        "https:" + flag_link.get("src") for flag_link in flag_images_img
+    ]
     return country
 
 

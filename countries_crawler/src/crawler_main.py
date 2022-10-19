@@ -16,11 +16,11 @@ def main():
     time_list = []
 
     # Web Scrappper with Simple Approach
-    # start_time = time.time()
-    # simple_countries_detail(START_URL)
-    # time_list.append("Time consumed in simple approach: "
-    #                        + str(round(time.time() - start_time, 2))
-    #                        + "s")
+    start_time = time.time()
+    simple_countries_detail(START_URL)
+    time_list.append("Time consumed in simple approach: "
+                           + str(round(time.time() - start_time, 2))
+                           + "s")
 
     # Web Scrappper with Asyncio
     start_time = time.time()
