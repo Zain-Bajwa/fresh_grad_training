@@ -1,7 +1,7 @@
 """Web Scrappper with Simple Approach"""
 
 
-from utils import  get_response, parse_countries_urls, get_country_detail
+from utils import  get_response, parse_countries_urls, display_country_detail
 
 
 def simple_countries_detail(start_url):
@@ -11,4 +11,4 @@ def simple_countries_detail(start_url):
     if response:
         country_urls = parse_countries_urls(response.content)
     for url in country_urls:
-        get_country_detail(url)
+        display_country_detail(url)

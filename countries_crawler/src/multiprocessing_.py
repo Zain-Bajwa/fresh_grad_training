@@ -1,8 +1,8 @@
 """Web Scrappper with Multiprocessing"""
 
 from multiprocessing import Pool
-from utils import  get_response, parse_countries_urls, get_country_detail
-    
+from utils import  get_response, parse_countries_urls, display_country_detail
+
 
 def multiprocessing_countries_detail(start_url):
     """Web Scrappper with Multiprocessing
@@ -15,6 +15,6 @@ def multiprocessing_countries_detail(start_url):
     response = get_response(start_url)
     if response:
         country_urls = parse_countries_urls(response.content)
-   
-    with Pool(10) as p:
-        p.map(get_country_detail, country_urls)
+
+    with Pool(10) as pool:
+        pool.map(display_country_detail, country_urls)

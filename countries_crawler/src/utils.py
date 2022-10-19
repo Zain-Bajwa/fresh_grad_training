@@ -4,7 +4,6 @@
 import json
 from bs4 import BeautifulSoup
 import requests
-from requests.exceptions import HTTPError, ConnectionError
 from constants import BASE_URL, PROVINCE_KEYWORDS
 
 
@@ -16,18 +15,12 @@ def get_response(url):
     This will also handle the connection error.
     """
 
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            return response
-        print("Inavlid URL\n")
-        return
+    response = requests.get(url)
+    if response.ok:
+        return response
+    print(f"\nInavlid URL or Bad Status Code {response.status_code}")
+    return
 
-    except HTTPError:
-        print(f"\nBad Status Code {response.status_code}")
-
-    except ConnectionError:
-        print(f"\nConnection Error\n")
 
 def parse_countries_urls(html):
     """List of URLs of all countries
@@ -37,14 +30,14 @@ def parse_countries_urls(html):
     detail of individual country.
     """
 
-    soup = BeautifulSoup(html, 'html.parser')
-    spans = soup.find_all('span', class_="flagicon")
+    soup = BeautifulSoup(html, "html.parser")
+    country_urls_spans = soup.select("span.flagicon")
 
-    country_url = []
-    for span in spans:
-        country_url.append(BASE_URL + span.parent.a.get('href'))
+    country_urls = [
+        BASE_URL + url_span.parent.a.get("href") for url_span in country_urls_spans
+    ]
 
-    return country_url
+    return country_urls
 
 def parser_country(html, url, status_code):
     """Parse an html with BeautifulSoup
@@ -55,50 +48,51 @@ def parser_country(html, url, status_code):
     as a dictionary.
     """
     country = {}
-    soup = BeautifulSoup(html, 'html.parser')
-    country["name"] = soup.find('span',
-                                class_='mw-page-title-main').text
+    soup = BeautifulSoup(html, "html.parser")
+    country["name"] = soup.select_one("span.mw-page-title-main").text
     if country["name"] == "Antarctica":
         return
-    td = soup.find('td', class_="infobox-data")
-    country["capital"] = td.next_element.text
+    country_detail_td = soup.select_one("td.infobox-data")
+    country["capital"] = country_detail_td.next_element.text
     country["url"] = url
 
-    province_link = ''
     for key in PROVINCE_KEYWORDS:
-        if soup.find('a', text=key) is not None:
-            province_link = soup.find('a', text=key).get("href")
+        if soup.select_one("a:contains(key)") is not None:
+            province_link = soup.select_one("a:contains(key)").get("href")
+            country["province"] = BASE_URL + province_link
             break
-
-    country["province"] = BASE_URL + province_link
 
     country["response_code"] = str(status_code)
 
     try:
-        coordinates = td.find('span', class_='geo-dec').text.split()
+        coordinates = country_detail_td.select_one(
+            "span.geo-dec"
+        ).text.split()
         coordinates = [round(float(i[:-2]), 4) for i in coordinates]
         country["lat_lang"] = coordinates
     except AttributeError:
         country["lat_lang"] = []
 
-    td = soup.find('td', class_="infobox-image") or \
-        soup.find('td', class_="infobox-full-data maptable")
-    if td is not None:
-        imgs = td.find_all('img')
+    flag_images_td = soup.select_one("td.infobox-image") or soup.select_one(
+        "td.infobox-full-data maptable"
+    )
+    if flag_images_td is not None:
+        flag_images_img = flag_images_td.select("img")
 
-        if len(imgs) >= 2:
+        if len(flag_images_img) >= 2:
             country["Images"] = [
-                "https:" + imgs[0].get("src"),
-                "https:" + imgs[1].get("src"),
-                ]
+                "https:" + flag_images_img[0].get("src"),
+                "https:" + flag_images_img[1].get("src"),
+            ]
         else:
-            country["Images"] = ["https:" + imgs[0].get("src")]
+            country["Images"] = ["https:" + flag_images_img[0].get("src")]
     else:
         country["Images"] = []
 
     return country
 
-def get_country_detail(url):
+
+def display_country_detail(url):
     """Display Country Information
 
     This method receive an url of wikipedia and get the contents of the link.
@@ -109,12 +103,9 @@ def get_country_detail(url):
     """
 
     response = get_response(url)
-    
+
     if response:
-        country = parser_country(
-                                    response.content,
-                                    url,
-                                    response.status_code)
+        country = parser_country(response.content, url, response.status_code)
         if country is not None:
-            json_object = json.dumps(country, indent = 4) 
+            json_object = json.dumps(country, indent=4)
             print(json_object)

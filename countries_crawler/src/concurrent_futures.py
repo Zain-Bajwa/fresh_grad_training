@@ -1,10 +1,10 @@
 """Web Scrappper with Concurrent Futures"""
 
 
-import concurrent.futures as cf
+import concurrent.futures as concurrent_futures
 from constants import NUM_THREADS
-from utils import  get_response, parse_countries_urls, get_country_detail
-    
+from utils import get_response, parse_countries_urls, display_country_detail
+
 
 def concurrent_countries_detail(start_url):
     """Web Scrappper with Multiprocessing
@@ -17,6 +17,8 @@ def concurrent_countries_detail(start_url):
     response = get_response(start_url)
     if response:
         country_urls = parse_countries_urls(response.content)
-   
-    with cf.ThreadPoolExecutor(max_workers=NUM_THREADS) as executor:
-        executor.map(get_country_detail, country_urls)
+
+    with concurrent_futures.ThreadPoolExecutor(
+        max_workers=NUM_THREADS
+    ) as executor:
+        executor.map(display_country_detail, country_urls)
