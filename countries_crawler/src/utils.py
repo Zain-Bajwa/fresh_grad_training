@@ -36,8 +36,8 @@ def parse_countries_urls(html):
     country_urls = [
         BASE_URL + url_span.parent.a.get("href") for url_span in country_urls_spans
     ]
-
     return country_urls
+
 
 def parser_country(html, url, status_code):
     """Parse an html with BeautifulSoup
@@ -51,7 +51,7 @@ def parser_country(html, url, status_code):
     soup = BeautifulSoup(html, "html.parser")
     country["name"] = soup.select_one("span.mw-page-title-main").text
     if country["name"] == "Antarctica":
-        return
+        return ''
     country_detail_td = soup.select_one("td.infobox-data")
     country["capital"] = country_detail_td.next_element.text
     country["url"] = url
@@ -61,7 +61,6 @@ def parser_country(html, url, status_code):
             province_link = soup.select_one("a:contains(key)").get("href")
             country["province"] = BASE_URL + province_link
             break
-
     country["response_code"] = str(status_code)
 
     try:
@@ -88,7 +87,6 @@ def parser_country(html, url, status_code):
             country["Images"] = ["https:" + flag_images_img[0].get("src")]
     else:
         country["Images"] = []
-
     return country
 
 
@@ -106,6 +104,4 @@ def display_country_detail(url):
 
     if response:
         country = parser_country(response.content, url, response.status_code)
-        if country is not None:
-            json_object = json.dumps(country, indent=4)
-            print(json_object)
+        print(json.dumps(country, indent=4))
