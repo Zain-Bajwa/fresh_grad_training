@@ -2,6 +2,7 @@
 
 
 import concurrent.futures as concurrent_futures
+
 from constants import NUM_THREADS
 from utils import get_response, parse_countries_urls, display_country_detail
 

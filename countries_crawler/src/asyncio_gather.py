@@ -1,8 +1,10 @@
 """Web Scrappper with Asyncio"""
 
 import json
+
 import asyncio
 import aiohttp
+
 from utils import parser_country, parse_countries_urls
 
 
@@ -49,8 +51,7 @@ async def async_countries_detail(start_url):
 
     async with aiohttp.ClientSession() as session:
         response = await get_response(session, start_url)
-        if response:
-            country_urls = parse_countries_urls(response["response_text"])
+        country_urls = parse_countries_urls(response["response_text"])
         tasks = [
             asyncio.create_task(display_country_detail(session, url))
             for url in country_urls

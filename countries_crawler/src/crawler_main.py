@@ -1,7 +1,8 @@
 """Website Crawler"""
 
-import asyncio
 import time
+import asyncio
+
 from simple import simple_countries_detail
 from asyncio_gather import async_countries_detail
 from multiprocessing_ import multiprocessing_countries_detail

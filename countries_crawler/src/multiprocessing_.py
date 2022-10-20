@@ -1,6 +1,7 @@
 """Web Scrappper with Multiprocessing"""
 
 from multiprocessing import Pool
+
 from utils import  get_response, parse_countries_urls, display_country_detail
 
 

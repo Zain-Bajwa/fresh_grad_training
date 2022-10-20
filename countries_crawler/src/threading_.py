@@ -1,9 +1,11 @@
 """Web Scrappper with Threading"""
 
 import json
+from threading import Thread
+
 import asyncio
 import aiohttp
-from threading import Thread
+
 from requests.exceptions import HTTPError, ConnectionError
 from utils import parser_country, parse_countries_urls, get_response
 
