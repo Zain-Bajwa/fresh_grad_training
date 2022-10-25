@@ -2,7 +2,7 @@
 This application simulates the behavior of Taxi Meter(Rent). 
 
 #### **Installation**
-- Clone the repository `https://github.com/Zain-Bajwa`
+- Clone the repository `https://github.com/Zain-Bajwa/fresh_grad_training.git`
 - Create virtual environment
 ```bash
 $ python -m venv .venv
